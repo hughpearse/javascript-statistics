@@ -53,8 +53,8 @@
       var LL = 1e+10;
       var b_0_hat = 0.0;
       var b_1_hat = 0.0;
-      var stepSize = 1;
-      while (Math.abs(LLprev - LL) > 0.001) {
+      var stepSize = 1.0;
+      while (Math.abs(LLprev - LL) > 0.0001 && stepSize > 0.1) {
           LLprev = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
           var ll_diff_arr = [];
           ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat + stepSize, b_1_hat));
@@ -70,29 +70,39 @@
           var index = ll_diff_arr.indexOf(Math.min.apply(Math, ll_diff_arr));
 
           //persist change to b0 and b1 that resulted in smallest LL value
-          if (index == 0)
+          if (index == 0) {
               b_0_hat = b_0_hat + stepSize;
-          if (index == 1)
+          }
+          if (index == 1) {
               b_1_hat = b_1_hat + stepSize;
-          if (index == 2)
+          }
+          if (index == 2) {
               b_0_hat = b_0_hat + stepSize;
-          b_1_hat = b_1_hat + stepSize;
-          if (index == 3)
+              b_1_hat = b_1_hat + stepSize;
+          }
+          if (index == 3) {
               b_0_hat = b_0_hat - stepSize;
-          if (index == 4)
+          } 
+          if (index == 4) {
               b_1_hat = b_1_hat - stepSize;
-          if (index == 5)
+          }
+          if (index == 5) {
               b_0_hat = b_0_hat - stepSize;
-          b_1_hat = b_1_hat - stepSize;
-          if (index == 6)
+              b_1_hat = b_1_hat - stepSize;
+          }
+          if (index == 6) {
               b_0_hat = b_0_hat + stepSize;
-          b_1_hat = b_1_hat - stepSize;
-          if (index == 7)
+              b_1_hat = b_1_hat - stepSize;
+          }
+          if (index == 7) {
               b_0_hat = b_0_hat - stepSize;
-          b_1_hat = b_1_hat + stepSize;
-
+              b_1_hat = b_1_hat + stepSize;
+          }
+          else {
+                stepSize = stepSize * 0.85;
+          }
           LL = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
-          stepSize = stepSize * 0.85;
+          
           ctr = ctr + 1;
       }
       alert("steps=" + ctr + ", b0:=" + b_0_hat + ", b1=" + b_1_hat);
