@@ -6,115 +6,125 @@
   
   <script>
   var trace1 = {
-  x: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 4, 4.25, 4.5, 4.75, 5, 5.5],
-  y: [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
-  mode: 'markers',
-  name: 'student'
-};
-var spdata = [ trace1 ];
-var layout = {
-  title:'Logistic Regression',
-  xaxis: {
-    title: 'Hours of study'
-  },
-  yaxis: {
-    title: 'Probability of passing exam'
-  },
-};
-Plotly.newPlot('graph', spdata, layout);
+      x: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 4, 4.25, 4.5, 4.75, 5, 5.5],
+      y: [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+      mode: 'markers',
+      name: 'student'
+  };
+  var spdata = [trace1];
+  var layout = {
+      title: 'Logistic Regression',
+      xaxis: {
+          title: 'Hours of study'
+      },
+      yaxis: {
+          title: 'Probability of passing exam'
+      },
+  };
+  Plotly.newPlot('graph', spdata, layout);
 
 
-//--------------------------------
-//var b0 = -4.07769;
-//var b1 = 1.504639;
-var b0 = 0.0;
-var b1 = 0.0;
-function sumLogLikelihood(x, y, b_0, b_1){
-    var LL = 0.0;
-    for ( var i=0; i<trace1.x.length; i++) {
-        var l = y[i] * Math.log( Math.exp(b_0+b_1*x[i])/(1+Math.exp(b_0+b_1*x[i])) ) + (1-y[i]) * Math.log( 1 - (Math.exp(b_0+b_1*x[i])/(1+Math.exp(b_0+b_1*x[i]))) );
-        LL = LL + l;
-    }
-    return -2.0*LL;
-}
+  //--------------------------------
+  //var b0 = -4.07769;
+  //var b1 = 1.504639;
+  var b0 = 0.0;
+  var b1 = 0.0;
 
-function generalizedReducedGradient(x, y){
-    var ctr = 0;
-    var LLprev = 0.0;
-    var LL  = 1e+10;
-    var b_0_hat = 0.0;
-    var b_1_hat = 0.0;
-    var stepSize = 1;
-    while( Math.abs(LLprev-LL)>0.001 ) {
-        LLprev = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
-        var ll_diff_arr = [];
-        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat+stepSize, b_1_hat));
-        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat, b_1_hat+stepSize));
-        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat+stepSize, b_1_hat+stepSize));
-        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat-stepSize, b_1_hat));
-        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat, b_1_hat-stepSize));
-        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat-stepSize, b_1_hat-stepSize));
-        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat+stepSize, b_1_hat-stepSize));
-        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat-stepSize, b_1_hat+stepSize));
-        
-        var index = ll_diff_arr.indexOf(Math.min.apply(Math, ll_diff_arr));
-        
-        if(index==0)
-            b_0_hat = b_0_hat + stepSize;
-        if(index==1)
-            b_1_hat = b_1_hat + stepSize;
-        if(index==2)
-            b_0_hat = b_0_hat + stepSize;
-            b_1_hat = b_1_hat + stepSize;
-        if(index==3)
-            b_0_hat = b_0_hat - stepSize;
-        if(index==4)
-            b_1_hat = b_1_hat - stepSize;
-        if(index==5)
-            b_0_hat = b_0_hat - stepSize;
-            b_1_hat = b_1_hat - stepSize;
-        if(index==6)
-            b_0_hat = b_0_hat + stepSize;
-            b_1_hat = b_1_hat - stepSize;
-        if(index==7)
-            b_0_hat = b_0_hat - stepSize;
-            b_1_hat = b_1_hat + stepSize;
-        
-        LL = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
-        stepSize = stepSize * 0.85;
-        ctr = ctr + 1;
-    }
-    alert("steps=" + ctr + ", b0:=" + b_0_hat + ", b1=" + b_1_hat);
-    b0=b_0_hat;
-    b1=b_1_hat;
-}
-generalizedReducedGradient(trace1.x, trace1.y);
+  function sumLogLikelihood(x, y, b_0, b_1) {
+      var LL = 0.0;
+      for (var i = 0; i < trace1.x.length; i++) {
+          var l = y[i] * Math.log(Math.exp(b_0 + b_1 * x[i]) / (1 + Math.exp(b_0 + b_1 * x[i]))) + (1 - y[i]) * Math.log(1 - (Math.exp(b_0 + b_1 * x[i]) / (1 + Math.exp(b_0 + b_1 * x[i]))));
+          LL = LL + l;
+      }
+      return -2.0 * LL;
+  }
 
-var frames = [
-  {data: [{x: [], y: []}]}
-];
+  function generalizedReducedGradient(x, y) {
+      var ctr = 0;
+      var LLprev = 0.0;
+      var LL = 1e+10;
+      var b_0_hat = 0.0;
+      var b_1_hat = 0.0;
+      var stepSize = 1;
+      while (Math.abs(LLprev - LL) > 0.001) {
+          LLprev = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
+          var ll_diff_arr = [];
+          ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat + stepSize, b_1_hat));
+          ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat, b_1_hat + stepSize));
+          ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat + stepSize, b_1_hat + stepSize));
+          ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat - stepSize, b_1_hat));
+          ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat, b_1_hat - stepSize));
+          ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat - stepSize, b_1_hat - stepSize));
+          ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat + stepSize, b_1_hat - stepSize));
+          ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat - stepSize, b_1_hat + stepSize));
 
-var n = 100;
-var maxVal = Math.max.apply( Math, trace1.x );
-var incVal = maxVal/100.0;
-//var lineY = 0.0;
-var lineY = Math.min.apply( Math, trace1.x );
-for (var i = 0; i < n; i++) {
-  frames[0].data[0].x[i] = lineY;
-  frames[0].data[0].y[i] = (Math.exp(b0+b1*lineY))/(1+Math.exp(b0+b1*lineY));
-  lineY = lineY+incVal;
-}
+          var index = ll_diff_arr.indexOf(Math.min.apply(Math, ll_diff_arr));
 
-Plotly.plot('graph', [{
-  name: 'logistic',
-  x: frames[0].data[0].x,
-  y: frames[0].data[0].y,
-  line: {simplify: false},
-}], {
-  xaxis: {range: [0, 6]},
-  yaxis: {range: [0, 1]},
-}).then(function() {
-  Plotly.addFrames('graph', frames);
-});
+          if (index == 0)
+              b_0_hat = b_0_hat + stepSize;
+          if (index == 1)
+              b_1_hat = b_1_hat + stepSize;
+          if (index == 2)
+              b_0_hat = b_0_hat + stepSize;
+          b_1_hat = b_1_hat + stepSize;
+          if (index == 3)
+              b_0_hat = b_0_hat - stepSize;
+          if (index == 4)
+              b_1_hat = b_1_hat - stepSize;
+          if (index == 5)
+              b_0_hat = b_0_hat - stepSize;
+          b_1_hat = b_1_hat - stepSize;
+          if (index == 6)
+              b_0_hat = b_0_hat + stepSize;
+          b_1_hat = b_1_hat - stepSize;
+          if (index == 7)
+              b_0_hat = b_0_hat - stepSize;
+          b_1_hat = b_1_hat + stepSize;
+
+          LL = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
+          stepSize = stepSize * 0.85;
+          ctr = ctr + 1;
+      }
+      alert("steps=" + ctr + ", b0:=" + b_0_hat + ", b1=" + b_1_hat);
+      b0 = b_0_hat;
+      b1 = b_1_hat;
+  }
+  generalizedReducedGradient(trace1.x, trace1.y);
+
+  var frames = [{
+      data: [{
+          x: [],
+          y: []
+      }]
+  }];
+
+  var n = 100;
+  var maxVal = Math.max.apply(Math, trace1.x);
+  var incVal = maxVal / 100.0;
+  //var lineY = 0.0;
+  var lineY = Math.min.apply(Math, trace1.x);
+  for (var i = 0; i < n; i++) {
+      frames[0].data[0].x[i] = lineY;
+      frames[0].data[0].y[i] = (Math.exp(b0 + b1 * lineY)) / (1 + Math.exp(b0 + b1 * lineY));
+      lineY = lineY + incVal;
+  }
+
+  Plotly.plot('graph', [{
+      name: 'logistic',
+      x: frames[0].data[0].x,
+      y: frames[0].data[0].y,
+      line: {
+          simplify: false
+      },
+  }], {
+      xaxis: {
+          range: [0, 6]
+      },
+      yaxis: {
+          range: [0, 1]
+      },
+  }).then(function() {
+      Plotly.addFrames('graph', frames);
+  });
   </script>
 </body>
