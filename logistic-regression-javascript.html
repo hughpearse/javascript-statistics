@@ -54,6 +54,8 @@ function generalizedReducedGradient(x, y){
         ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat-stepSize, b_1_hat));
         ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat, b_1_hat-stepSize));
         ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat-stepSize, b_1_hat-stepSize));
+        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat+stepSize, b_1_hat-stepSize));
+        ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat-stepSize, b_1_hat+stepSize));
         
         var index = ll_diff_arr.indexOf(Math.min.apply(Math, ll_diff_arr));
         
@@ -71,9 +73,15 @@ function generalizedReducedGradient(x, y){
         if(index==5)
             b_0_hat = b_0_hat - stepSize;
             b_1_hat = b_1_hat - stepSize;
+        if(index==6)
+            b_0_hat = b_0_hat + stepSize;
+            b_1_hat = b_1_hat - stepSize;
+        if(index==7)
+            b_0_hat = b_0_hat - stepSize;
+            b_1_hat = b_1_hat + stepSize;
         
         LL = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
-        stepSize = stepSize * 0.95;
+        stepSize = stepSize * 0.85;
         ctr = ctr + 1;
     }
     alert("steps=" + ctr + ", b0:=" + b_0_hat + ", b1=" + b_1_hat);
