@@ -54,7 +54,7 @@
       var b_0_hat = 0.0;
       var b_1_hat = 0.0;
       var stepSize = 1.0;
-      while (Math.abs(LLprev - LL) > 0.01 || stepSize > 0.1) {
+      while (Math.abs(LLprev - LL) > 0.001 || stepSize > 0.001) {
           LLprev = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
           var ll_diff_arr = [];
           ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat + stepSize, b_1_hat));
