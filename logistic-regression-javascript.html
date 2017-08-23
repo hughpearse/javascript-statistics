@@ -5,12 +5,16 @@
   <div id="graph"></div>
   
   <script>
+  //X and Y data for logistic regression
   var trace1 = {
       x: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 4, 4.25, 4.5, 4.75, 5, 5.5],
       y: [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
       mode: 'markers',
       name: 'student'
   };
+  var max_x_Val = Math.max.apply(Math, trace1.x);
+  var min_x_Val = Math.min.apply(Math, trace1.x);
+
   var spdata = [trace1];
   var layout = {
       title: 'Logistic Regression',
@@ -30,6 +34,7 @@
   var b0 = 0.0;
   var b1 = 0.0;
 
+  //function to calculate the sum of the Log Likelihood values across X and Y
   function sumLogLikelihood(x, y, b_0, b_1) {
       var LL = 0.0;
       for (var i = 0; i < trace1.x.length; i++) {
@@ -39,6 +44,9 @@
       return -2.0 * LL;
   }
 
+  //function to calculate the optimised coefficients b0 and b1 by
+  //making iterative changes to b0 and b1 until smallest Log Likelihood
+  //value is reached
   function generalizedReducedGradient(x, y) {
       var ctr = 0;
       var LLprev = 0.0;
@@ -58,8 +66,10 @@
           ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat + stepSize, b_1_hat - stepSize));
           ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat - stepSize, b_1_hat + stepSize));
 
+          //get offset in array for smallest LL value
           var index = ll_diff_arr.indexOf(Math.min.apply(Math, ll_diff_arr));
 
+          //persist change to b0 and b1 that resulted in smallest LL value
           if (index == 0)
               b_0_hat = b_0_hat + stepSize;
           if (index == 1)
@@ -89,6 +99,8 @@
       b0 = b_0_hat;
       b1 = b_1_hat;
   }
+
+  //calculate the estimated coefficients b0 and b1
   generalizedReducedGradient(trace1.x, trace1.y);
 
   var frames = [{
@@ -98,17 +110,17 @@
       }]
   }];
 
+  //populate the curve data
   var n = 100;
-  var maxVal = Math.max.apply(Math, trace1.x);
-  var incVal = maxVal / 100.0;
-  //var lineY = 0.0;
-  var lineY = Math.min.apply(Math, trace1.x);
+  var incVal = Math.abs(max_x_Val - min_x_Val) / n;
+  var lineY = min_x_Val;
   for (var i = 0; i < n; i++) {
       frames[0].data[0].x[i] = lineY;
       frames[0].data[0].y[i] = (Math.exp(b0 + b1 * lineY)) / (1 + Math.exp(b0 + b1 * lineY));
       lineY = lineY + incVal;
   }
 
+  //plot the data in the DIV
   Plotly.plot('graph', [{
       name: 'logistic',
       x: frames[0].data[0].x,
@@ -118,7 +130,7 @@
       },
   }], {
       xaxis: {
-          range: [0, 6]
+          range: [min_x_Val, max_x_Val]
       },
       yaxis: {
           range: [0, 1]
