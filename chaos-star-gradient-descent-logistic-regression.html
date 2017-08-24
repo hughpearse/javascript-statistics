@@ -4,6 +4,7 @@
 
 <body>
     <div id="graph"></div>
+    <div id="graph2"></div>
 
     <script>
         //X and Y data for logistic regression
@@ -34,28 +35,41 @@
         //var b1 = 1.504639;
         var b0 = 0.0;
         var b1 = 0.0;
-
+        var ctr = 0;
+        var gradientCtr = 0;
+        
+        var trace2 = {
+            x: [],
+            y: [],
+            mode: 'graph',
+            name: 'error'
+        };
+        
         //function to calculate the sum of the Log Likelihood values across X and Y
         function sumLogLikelihood(x, y, b_0, b_1) {
+            ctr++;
             var LL = 0.0;
             for (var i = 0; i < trace1.x.length; i++) {
                 var l = y[i] * Math.log(Math.exp(b_0 + b_1 * x[i]) / (1 + Math.exp(b_0 + b_1 * x[i]))) + (1 - y[i]) * Math.log(1 - (Math.exp(b_0 + b_1 * x[i]) / (1 + Math.exp(b_0 + b_1 * x[i]))));
                 LL = LL + l;
             }
-            return -2.0 * LL;
+            LL = -2.0 * LL
+            trace2.x.push(gradientCtr++);
+            trace2.y.push(LL);
+            return LL;
         }
 
         //function to calculate the optimised coefficients b0 and b1 by
         //making iterative changes to b0 and b1 until smallest Log Likelihood
         //value is reached
         function generalizedReducedGradient(x, y) {
-            var ctr = 0;
             var LLprev = 0.0;
             var LL = 1e+10;
             var b_0_hat = 0.0;
             var b_1_hat = 0.0;
             var stepSize = 1.0;
-            while (Math.abs(LLprev - LL) > 0.001 || stepSize > 0.001) {
+            
+            while (Math.abs(LLprev - LL) > 0.0001) {
                 LLprev = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
                 var ll_diff_arr = [];
                 ll_diff_arr.push(sumLogLikelihood(x, y, b_0_hat + stepSize, b_1_hat));
@@ -99,11 +113,9 @@
                     b_0_hat = b_0_hat - stepSize;
                     b_1_hat = b_1_hat + stepSize;
                 } else {
-                    stepSize = stepSize * 0.85;
+                    stepSize = stepSize * 0.9;
                 }
                 LL = sumLogLikelihood(x, y, b_0_hat, b_1_hat);
-
-                ctr = ctr + 1;
             }
             alert("steps=" + ctr + ", b0:=" + b_0_hat + ", b1=" + b_1_hat);
             b0 = b_0_hat;
@@ -147,6 +159,34 @@
             },
         }).then(function() {
             Plotly.addFrames('graph', frames);
+        });
+        
+        var layout2 = {
+            title: 'Rate of convergence',
+            xaxis: {
+                title: 'Iterations'
+            },
+            yaxis: {
+                title: 'Distance from minimum'
+            },
+        };
+        var spdata2 = [trace2];
+        Plotly.plot('graph2', [{
+            name: 'Error',
+            x: trace2.x,
+            y: trace2.y,
+            line: {
+                simplify: false
+            },
+        }], {
+            xaxis: {
+                range: [0, gradientCtr]
+            },
+            yaxis: {
+                range: [Math.min.apply(Math, trace2.y), Math.max.apply(Math, trace2.y)]
+            },
+        }).then(function() {
+            Plotly.newPlot('graph2', spdata2, layout2);
         });
     </script>
 </body>
